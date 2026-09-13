@@ -1,0 +1,20 @@
+/*
+ * Only one true "Mono" weight was uploaded so far — ABC Monument Grotesk
+ * Mono Bold. It's registered here as the normal (400) weight so body text
+ * across the site renders in the actual mono face rather than falling
+ * back to a system font. `ABCMonumentGrotesk-Regular.otf` (also uploaded)
+ * is the non-mono grotesk sibling, not this typeface, so it's intentionally
+ * left out — mixing it in would make some text monospace and some not.
+ *
+ * Add ABCMonumentGroteskMono-Regular.otf / -Medium.otf to public/fonts/
+ * and a matching @font-face block below to get real weight variation
+ * (see public/fonts/README.md).
+ */
+
+@font-face {
+  font-family: "Monument Grotesk Mono";
+  src: url("/fonts/ABCMonumentGroteskMono-Bold.otf") format("opentype");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
