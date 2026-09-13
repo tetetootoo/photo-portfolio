@@ -1,0 +1,100 @@
+export interface Photo {
+  id: string;
+  /** Path under /public/photos — see that folder's README for how these get here. */
+  src: string;
+  alt: string;
+}
+
+/**
+ * Photos for the home page drag-grid, sourced from `public/photos/`
+ * (web-optimized copies — the full-resolution originals you uploaded live
+ * untouched in `photos-originals/` at the project root, outside of
+ * `public/`, so they aren't shipped in the production build).
+ *
+ * Add, remove, or reorder entries here to change what shows on the site.
+ * Any tile whose image fails to load falls back to a placeholder frame.
+ */
+export const photos: Photo[] = [
+  "DSC00054.jpg",
+  "DSC00096.jpg",
+  "DSC00153.jpg",
+  "DSC00155.jpg",
+  "DSC00165.jpg",
+  "DSC00184.jpg",
+  "DSC00189.jpg",
+  "DSC00288.jpg",
+  "DSC00290.jpg",
+  "DSC00333.jpg",
+  "DSC00379.jpg",
+  "DSC00416.jpg",
+  "DSC00441.jpg",
+  "DSC00445.jpg",
+  "DSC00454.jpg",
+  "DSC00626.jpg",
+  "DSC00720-2.jpg",
+  "DSC00720.jpg",
+  "DSC00765-2.jpg",
+  "DSC00765.jpg",
+  "DSC01169.jpg",
+  "DSC01350.jpg",
+  "DSC01416.jpg",
+  "DSC01712.jpg",
+  "DSC01717.jpg",
+  "DSC01849.jpg",
+  "DSC01883.jpg",
+  "DSC02285.jpg",
+  "DSC02290.jpg",
+  "DSC02499.jpg",
+  "DSC02513.jpg",
+  "DSC02529.jpg",
+  "DSC02547.jpg",
+  "DSC02563.jpg",
+  "DSC02667.jpg",
+  "DSC02670.jpg",
+  "DSC02748.jpg",
+  "DSC02767.jpg",
+  "DSC02784.jpg",
+  "DSC02815.jpg",
+  "DSC02886.jpg",
+  "DSC03017.jpg",
+  "DSC03018.jpg",
+  "DSC03027.jpg",
+  "DSC03035.jpg",
+  "DSC03054.jpg",
+  "DSC03083.jpg",
+  "DSC03222.jpg",
+  "DSC03255.jpg",
+  "DSC03314.jpg",
+  "DSC03334.jpg",
+  "DSC03336.jpg",
+  "DSC03347.jpg",
+  "DSC03356.jpg",
+  "DSC03385.jpg",
+  "DSC03463.jpg",
+  "DSC05532.jpg",
+  "DSC05538.jpg",
+  "DSC08136.jpg",
+  "DSC08148.jpg",
+  "DSC08195.jpg",
+  "DSC08223.jpg",
+  "DSC08307.jpg",
+  "DSC08324.jpg",
+  "DSC08523.jpg",
+  "DSC08535.jpg",
+  "DSC08541.jpg",
+  "DSC08556.jpg",
+  "DSC08619.jpg",
+  "DSC08621.jpg",
+  "DSC08673.jpg",
+  "DSC09971.jpg",
+  "DSC09973.jpg",
+  "GOPR0158.jpg",
+  "IMG_0868.jpg",
+  "IMG_1029-3.jpg",
+  "IMG_2775.jpg",
+  "IMG_8470.jpg",
+].map((filename, index) => ({
+  id: String(index + 1).padStart(2, "0"),
+  src: `/photos/${filename}`,
+  alt: `Photo ${index + 1}`,
+}));
