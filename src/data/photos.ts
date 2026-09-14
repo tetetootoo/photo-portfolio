@@ -6,15 +6,11 @@ export interface Photo {
 }
 
 /**
- * Photos for the home page drag-grid, sourced from `public/photos/`
- * (web-optimized copies — the full-resolution originals you uploaded live
- * untouched in `photos-originals/` at the project root, outside of
- * `public/`, so they aren't shipped in the production build).
- *
- * Add, remove, or reorder entries here to change what shows on the site.
- * Any tile whose image fails to load falls back to a placeholder frame.
+ * Kept sorted for easy maintenance (add/remove/spot-check filenames here).
+ * The actual display order is shuffled below, so this list's order has no
+ * effect on the grid itself.
  */
-export const photos: Photo[] = [
+const filenames = [
   "DSC00054.jpg",
   "DSC00096.jpg",
   "DSC00153.jpg",
@@ -93,7 +89,49 @@ export const photos: Photo[] = [
   "IMG_1029-3.jpg",
   "IMG_2775.jpg",
   "IMG_8470.jpg",
-].map((filename, index) => ({
+];
+
+/**
+ * Small seeded PRNG (mulberry32) so the shuffle below is reproducible —
+ * same diverse order on every load/build, rather than re-shuffling (and
+ * visibly jumping around) on every page refresh. Change SHUFFLE_SEED to
+ * get a different fixed arrangement.
+ */
+function mulberry32(seed: number) {
+  let state = seed;
+  return function random() {
+    state = (state + 0x6d2b79f5) | 0;
+    let t = Math.imul(state ^ (state >>> 15), 1 | state);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function shuffle<T>(items: T[], seed: number): T[] {
+  const random = mulberry32(seed);
+  const result = [...items];
+  for (let i = result.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+const SHUFFLE_SEED = 20260913;
+
+/**
+ * Photos for the home page drag-grid, sourced from `public/photos/`
+ * (web-optimized copies — the full-resolution originals you uploaded live
+ * untouched in `photos-originals/` at the project root, outside of
+ * `public/`, so they aren't shipped in the production build).
+ *
+ * The display order is shuffled (see above) rather than following the
+ * filenames list, so photos taken back-to-back don't cluster together in
+ * the repeating grid block — it reads as a more varied mix. Add or remove
+ * filenames above to change what shows; reorder there does nothing.
+ * Any tile whose image fails to load falls back to a placeholder frame.
+ */
+export const photos: Photo[] = shuffle(filenames, SHUFFLE_SEED).map((filename, index) => ({
   id: String(index + 1).padStart(2, "0"),
   src: `/photos/${filename}`,
   alt: `Photo ${index + 1}`,
