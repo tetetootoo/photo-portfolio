@@ -1,32 +1,36 @@
-# React + TypeScript + Vite
+# Theresa Schantz - Photography
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+My photography portfolio.
 
-Currently, two official plugins are available:
+The site brings together personal and commissioned photography with a focus on people, atmosphere, light, and the details that make a place or moment feel particular.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Photography sits alongside my work in design and software and is an important part of how I think about composition, color, rhythm, and visual storytelling.
 
-## React Compiler
+![Theresa Schantz photography portfolio homepage](docs/portfolio-screenshot.jpg)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## The site
 
-## Expanding the Oxlint configuration
+The portfolio is designed to keep the interface secondary to the images.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+It focuses on:
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+- large-format photography
+- restrained typography
+- responsive image layouts
+- simple navigation
+- minimal interface chrome
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Built with
+
+- React
+- TypeScript
+- Vite
+- CSS
+
+## Live
+
+[theresaschantz.com](https://www.theresaschantz.com/)
+
+## More
+
+For my design and software work, visit [Half Odd](https://www.halfodd.com/).
