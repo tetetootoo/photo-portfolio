@@ -34,3 +34,9 @@ It focuses on:
 ## More
 
 For my design and software work, visit [Half Odd](https://www.halfodd.com/).
+
+## License
+
+Copyright (c) 2026 Theresa Schantz. All rights reserved.
+
+See [LICENSE](LICENSE).
