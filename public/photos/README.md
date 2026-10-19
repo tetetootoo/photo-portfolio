@@ -13,3 +13,8 @@ original.
 
 Any tile whose image fails to load falls back automatically to a bordered
 placeholder frame.
+
+Photo filenames use `theresa-schantz-001.jpg` numbering. Matching originals
+and web copies share the same filename. The previous camera filenames are
+recorded in `docs/photo-filenames.json`. Keep existing numbers when adding
+or removing photos; assign new photos the next unused number.

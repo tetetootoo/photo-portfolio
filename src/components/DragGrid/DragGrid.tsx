@@ -8,6 +8,7 @@ import {
 } from "react";
 import type { Photo } from "../../data/photos";
 import { Tile } from "./Tile";
+import { getGridTiles } from "./gridLayout";
 import "./DragGrid.css";
 
 interface DragGridProps {
@@ -65,6 +66,7 @@ export function DragGrid({ photos, onOpenPhoto }: DragGridProps) {
   const { tileWidth, tileHeight, gap } = useTileConfig();
 
   const draggingRef = useRef(false);
+  const activePointerRef = useRef<number | null>(null);
   const lastPointerRef = useRef({ x: 0, y: 0, t: 0 });
   const dragVelocityRef = useRef({ x: 0, y: 0 });
   const moveDistanceRef = useRef(0);
@@ -130,8 +132,28 @@ export function DragGrid({ photos, onOpenPhoto }: DragGridProps) {
     };
   }, []);
 
+  const endDrag = useCallback(() => {
+    if (!draggingRef.current) return;
+    draggingRef.current = false;
+    const pointerId = activePointerRef.current;
+    activePointerRef.current = null;
+    const container = containerRef.current;
+    if (pointerId !== null && container?.hasPointerCapture(pointerId)) {
+      container.releasePointerCapture(pointerId);
+    }
+
+    const { x, y } = dragVelocityRef.current;
+    inertiaRef.current = {
+      active: Math.abs(x) > MIN_INERTIA_VELOCITY || Math.abs(y) > MIN_INERTIA_VELOCITY,
+      x,
+      y,
+    };
+  }, []);
+
   const onPointerDown = useCallback((e: ReactPointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0 || activePointerRef.current !== null) return;
     inertiaRef.current.active = false;
+    activePointerRef.current = e.pointerId;
     containerRef.current?.setPointerCapture(e.pointerId);
     draggingRef.current = true;
     moveDistanceRef.current = 0;
@@ -140,7 +162,12 @@ export function DragGrid({ photos, onOpenPhoto }: DragGridProps) {
   }, []);
 
   const onPointerMove = useCallback((e: ReactPointerEvent<HTMLDivElement>) => {
-    if (!draggingRef.current) return;
+    if (!draggingRef.current || activePointerRef.current !== e.pointerId) return;
+    // Recover if the browser missed the release event.
+    if (e.buttons === 0) {
+      endDrag();
+      return;
+    }
     const now = performance.now();
     const dx = e.clientX - lastPointerRef.current.x;
     const dy = e.clientY - lastPointerRef.current.y;
@@ -150,20 +177,26 @@ export function DragGrid({ photos, onOpenPhoto }: DragGridProps) {
     moveDistanceRef.current += Math.abs(dx) + Math.abs(dy);
     lastPointerRef.current = { x: e.clientX, y: e.clientY, t: now };
     setOffset((o) => ({ x: o.x + dx, y: o.y + dy }));
-  }, []);
+  }, [endDrag]);
 
   const onPointerUp = useCallback((e: ReactPointerEvent<HTMLDivElement>) => {
-    if (!draggingRef.current) return;
-    draggingRef.current = false;
-    containerRef.current?.releasePointerCapture(e.pointerId);
+    if (activePointerRef.current === e.pointerId) endDrag();
+  }, [endDrag]);
 
-    const { x: vx, y: vy } = dragVelocityRef.current;
-    if (Math.abs(vx) > MIN_INERTIA_VELOCITY || Math.abs(vy) > MIN_INERTIA_VELOCITY) {
-      inertiaRef.current = { active: true, x: vx, y: vy };
-    } else {
-      inertiaRef.current.active = false;
-    }
-  }, []);
+  useEffect(() => {
+    // A release outside the grid or a window switch must also drop the page.
+    const onRelease = (event: PointerEvent) => {
+      if (activePointerRef.current === event.pointerId) endDrag();
+    };
+    window.addEventListener("pointerup", onRelease);
+    window.addEventListener("pointercancel", onRelease);
+    window.addEventListener("blur", endDrag);
+    return () => {
+      window.removeEventListener("pointerup", onRelease);
+      window.removeEventListener("pointercancel", onRelease);
+      window.removeEventListener("blur", endDrag);
+    };
+  }, [endDrag]);
 
   const handleTileClick = useCallback(
     (photo: Photo) => {
@@ -174,36 +207,10 @@ export function DragGrid({ photos, onOpenPhoto }: DragGridProps) {
     [onOpenPhoto],
   );
 
-  const tiles = useMemo(() => {
-    if (photos.length === 0 || size.width === 0 || size.height === 0) return [];
-
-    const cellWidth = tileWidth + gap;
-    const cellHeight = tileHeight + gap;
-    const cols = Math.ceil(size.width / cellWidth) + 2;
-    const rows = Math.ceil(size.height / cellHeight) + 2;
-    const baseCol = Math.floor(-offset.x / cellWidth) - 1;
-    const baseRow = Math.floor(-offset.y / cellHeight) - 1;
-    // Side length of the repeating block of unique photos (e.g. 3x3 for 9 photos).
-    const block = Math.max(1, Math.ceil(Math.sqrt(photos.length)));
-
-    const result: { key: string; photo: Photo; left: number; top: number }[] = [];
-    for (let r = 0; r < rows; r += 1) {
-      for (let c = 0; c < cols; c += 1) {
-        const col = baseCol + c;
-        const row = baseRow + r;
-        const blockCol = ((col % block) + block) % block;
-        const blockRow = ((row % block) + block) % block;
-        const index = (blockRow * block + blockCol) % photos.length;
-        result.push({
-          key: `${col}:${row}`,
-          photo: photos[index],
-          left: col * cellWidth + offset.x,
-          top: row * cellHeight + offset.y,
-        });
-      }
-    }
-    return result;
-  }, [photos, size, offset, tileWidth, tileHeight, gap]);
+  const tiles = useMemo(
+    () => getGridTiles(photos, size, offset, tileWidth, tileHeight, gap),
+    [photos, size, offset, tileWidth, tileHeight, gap],
+  );
 
   return (
     <div
@@ -213,6 +220,7 @@ export function DragGrid({ photos, onOpenPhoto }: DragGridProps) {
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
+      onLostPointerCapture={onPointerUp}
     >
       {tiles.map((tile) => (
         <Tile
