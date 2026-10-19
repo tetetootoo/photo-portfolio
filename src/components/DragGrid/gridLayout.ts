@@ -11,28 +11,34 @@ export function getGridTiles(
   const uniquePhotos = [...new Map(photos.map((photo) => [photo.src, photo])).values()];
   if (uniquePhotos.length === 0 || size.width === 0 || size.height === 0) return [];
 
-  const cellWidth = tileWidth + gap;
-  const cellHeight = tileHeight + gap;
+  let cellWidth = tileWidth + gap;
+  let cellHeight = tileHeight + gap;
+  const visibleColumns = () => Math.ceil((size.width + tileWidth) / cellWidth);
+  const visibleRows = () => Math.ceil((size.height + tileHeight) / cellHeight);
+
+  // On unusually large screens, spread the available photos out enough
+  // that the viewport can still contain only unique images.
+  while (visibleColumns() * visibleRows() > uniquePhotos.length) {
+    cellWidth *= 1.1;
+    cellHeight *= 1.1;
+  }
+  const rowStride = visibleColumns();
   const cols = Math.ceil(size.width / cellWidth) + 2;
   const rows = Math.ceil(size.height / cellHeight) + 2;
   const baseCol = Math.floor(-offset.x / cellWidth) - 1;
   const baseRow = Math.floor(-offset.y / cellHeight) - 1;
 
-  // Repeats are farther apart than the viewport plus a tile, so even
-  // partially visible copies can never appear together on screen.
-  const repeatCols = Math.max(Math.ceil(size.width / cellWidth) + 1, Math.ceil(Math.sqrt(uniquePhotos.length)));
-  const repeatRows = Math.max(Math.ceil(size.height / cellHeight) + 1, Math.ceil(uniquePhotos.length / repeatCols));
+  // Consecutive rows advance by the maximum number of visible columns.
+  // Every visible rectangle therefore contains distinct indices, while
+  // modulo wrapping fills every cell even when the photo count is prime.
   const result: { key: string; photo: Photo; left: number; top: number }[] = [];
 
   for (let r = 0; r < rows; r += 1) {
     for (let c = 0; c < cols; c += 1) {
       const col = baseCol + c;
       const row = baseRow + r;
-      const blockCol = ((col % repeatCols) + repeatCols) % repeatCols;
-      const blockRow = ((row % repeatRows) + repeatRows) % repeatRows;
-      const index = blockRow * repeatCols + blockCol;
-      // Leave unfilled slots empty instead of wrapping to a duplicate photo.
-      if (index >= uniquePhotos.length) continue;
+      const photoIndex = row * rowStride + col;
+      const index = ((photoIndex % uniquePhotos.length) + uniquePhotos.length) % uniquePhotos.length;
       result.push({
         key: `${col}:${row}`,
         photo: uniquePhotos[index],
