@@ -11,7 +11,7 @@ export function TopNav() {
   return (
     <nav className="top-nav">
       <NavLink to="/" end className="top-nav__logo">
-        Theresa Schantz
+        Theresa Lilly
       </NavLink>
       <div className="top-nav__links">
         {links.map((link) => (
