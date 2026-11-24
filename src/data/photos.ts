@@ -167,8 +167,10 @@ const SHUFFLE_SEED = 20260913;
  * filenames above to change what shows; reorder there does nothing.
  * Any tile whose image fails to load falls back to a placeholder frame.
  */
-export const photos: Photo[] = shuffle(filenames, SHUFFLE_SEED).map((filename, index) => ({
-  id: String(index + 1).padStart(2, "0"),
-  src: `/photos/${filename}`,
-  alt: `Photo ${index + 1}`,
-}));
+export const photos: Photo[] = shuffle(filenames, SHUFFLE_SEED)
+  .filter((filename) => !filename.startsWith("digi_cam_"))
+  .map((filename, index) => ({
+    id: String(index + 1).padStart(2, "0"),
+    src: `/photos/${filename}`,
+    alt: `Photo ${index + 1}`,
+  }));
